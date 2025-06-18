@@ -29,3 +29,4 @@ coverage
 
 *.tsbuildinfo
 /backend/__pycache__
+/mcp/__pycache__

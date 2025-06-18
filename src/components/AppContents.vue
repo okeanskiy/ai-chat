@@ -90,7 +90,8 @@
       return;
     }
 
-    const response = await fetch('http://127.0.0.1:8001/stream');
+    const query = chatStore.currentChat.messages[chatStore.currentChat.messages.length - 1].content;
+    const response = await fetch(`http://127.0.0.1:8001/stream_llm?query=${query}`);
     if (!response.body) {
       appStore.addError('No response body');
       return;
