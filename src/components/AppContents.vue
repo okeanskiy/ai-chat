@@ -85,18 +85,21 @@
   }
 
   async function sendRequestForResponse() {
-    if (chatStore.currentChat) {
-      const stream = await openai.chat.completions.create({
-        messages: chatStore.currentChat.messages as ChatCompletionMessageParam[],
-        model: settingsStore.model,
-        temperature: +settingsStore.temp,
-        max_tokens: +settingsStore.maxTokens,
-        stream: true
-      });
-      for await (const chunk of stream) {
-        await chatStore.updateLastMessageStream(chunk.choices[0]?.delta?.content || '');
-        autoScrollDown();
-      }
+    if (!chatStore.currentChat) {
+      appStore.addError('No chat selected');
+      return;
+    }
+
+    const response = await fetch('http://127.0.0.1:8001/stream');
+    if (!response.body) {
+      appStore.addError('No response body');
+      return;
+    }
+    const stream = response.body.pipeThrough(new TextDecoderStream());
+
+    for await (const chunk of stream) {
+      await chatStore.updateLastMessageStream(chunk);
+      autoScrollDown();
     }
   }
 
